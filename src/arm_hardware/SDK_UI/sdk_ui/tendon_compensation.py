@@ -31,7 +31,8 @@ class _Config(ct.Structure):
         ("upper_rad", _Angles),
         ("mass_kg", _Angles),
         ("com_m", _Vector * 6),
-        ("rope_stiffness_n_per_mm", _Angles),
+        ("rope_stiffness_left_n_per_mm", _Angles),
+        ("rope_stiffness_right_n_per_mm", _Angles),
         ("radius_mm", _Angles),
         ("gravity_m_s2", _Vector),
         ("payload_mass_kg", ct.c_double),
@@ -41,7 +42,8 @@ class _Config(ct.Structure):
 
 class _Result(ct.Structure):
     _fields_ = [(name, _Angles) for name in (
-        "hold_torque_nm", "compensation_rad", "effective_rad", "rope_a_delta_mm", "rope_a_delta_n"
+        "hold_torque_nm", "compensation_rad", "effective_rad", "rope_a_delta_mm", "rope_a_delta_n",
+        "rope_b_delta_n",
     )]
 
 
@@ -52,6 +54,7 @@ class TendonEvaluation:
     effective_deg: tuple[float, ...]
     rope_a_delta_mm: tuple[float, ...]
     rope_a_delta_n: tuple[float, ...]
+    rope_b_delta_n: tuple[float, ...]
 
 
 def _prefixes() -> list[Path]:
@@ -83,10 +86,25 @@ def _load_config(profile: Path, urdf: Path) -> _Config:
         parameters = json.load(stream)
     config = _Config()
     for name, length in (
-        ("mass_kg", 6), ("rope_stiffness_n_per_mm", 6), ("radius_mm", 6),
+        ("mass_kg", 6), ("radius_mm", 6),
         ("gravity_m_s2", 3), ("payload_com_m", 3),
     ):
         getattr(config, name)[:] = _checked_vector(parameters[name], length, name)
+    left_name = "rope_stiffness_left_n_per_mm"
+    right_name = "rope_stiffness_right_n_per_mm"
+    legacy_name = "rope_stiffness_n_per_mm"
+    if legacy_name in parameters:
+        if left_name in parameters or right_name in parameters:
+            raise ValueError("旧版单绳刚度字段与左右绳刚度字段不能混用")
+        left = right = _checked_vector(parameters[legacy_name], 6, legacy_name)
+    elif left_name in parameters and right_name in parameters:
+        left = _checked_vector(parameters[left_name], 6, left_name)
+        right = _checked_vector(parameters[right_name], 6, right_name)
+    else:
+        raise ValueError("需要同时配置左绳和右绳刚度")
+    config.rope_stiffness_left_n_per_mm[:] = left
+    config.rope_stiffness_right_n_per_mm[:] = right
+
     config.payload_mass_kg = float(parameters["payload_mass_kg"])
     if len(parameters["com_m"]) != 6:
         raise ValueError("com_m 必须包含六个局部重心")
@@ -151,7 +169,7 @@ def _load_library() -> ct.CDLL:
     library = ct.CDLL(str(path.resolve()))
     library.arm_tendon_abi_version.argtypes = []
     library.arm_tendon_abi_version.restype = ct.c_uint
-    if library.arm_tendon_abi_version() != 1:
+    if library.arm_tendon_abi_version() != 2:
         raise RuntimeError(f"绳驱补偿库版本不匹配，请重新构建 {path}")
     error_args = [ct.c_char_p, ct.c_size_t]
     library.arm_tendon_create.argtypes = [ct.POINTER(_Config), *error_args]
@@ -235,6 +253,7 @@ class TendonModel:
             self._convert_j2(tuple(map(math.degrees, result.effective_rad))),
             tuple(result.rope_a_delta_mm),
             tuple(result.rope_a_delta_n),
+            tuple(result.rope_b_delta_n),
         )
 
     def estimate(

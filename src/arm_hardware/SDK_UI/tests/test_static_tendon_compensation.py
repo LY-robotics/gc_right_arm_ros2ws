@@ -1,4 +1,5 @@
 import json
+from math import radians
 import os
 from pathlib import Path
 import tempfile
@@ -12,6 +13,9 @@ from sdk_ui.tendon_compensation import TendonModel
 
 HORIZONTAL = (87.103289856, -2.019867214, 0.0, -0.000210459, 0.0, 0.0)
 OTHER_POSE = (-10.0, -20.0, 6.0, 12.0, -20.0, 18.0)
+LEFT_STIFFNESS = "rope_stiffness_left_n_per_mm"
+RIGHT_STIFFNESS = "rope_stiffness_right_n_per_mm"
+LEGACY_STIFFNESS = "rope_stiffness_n_per_mm"
 
 
 class StaticTendonTest(unittest.TestCase):
@@ -27,9 +31,9 @@ class StaticTendonTest(unittest.TestCase):
     def test_horizontal_defaults_units_and_inactive_axes(self):
         result = self.model.evaluate(HORIZONTAL)
         self.assertAlmostEqual(result.hold_torque_nm[0], 4.291572444, places=8)
-        self.assertAlmostEqual(result.compensation_deg[0], 0.127933917, places=8)
-        self.assertAlmostEqual(result.compensation_deg[3], 0.021305208, places=8)
-        self.assertAlmostEqual(result.rope_a_delta_mm[0], 0.069218910, places=8)
+        self.assertAlmostEqual(result.compensation_deg[0], 0.117252238, places=8)
+        self.assertAlmostEqual(result.compensation_deg[3], 0.465687601, places=8)
+        self.assertAlmostEqual(result.rope_a_delta_mm[0], 0.063439566, places=8)
         self.assertAlmostEqual(result.rope_a_delta_n[0], 69.218910382, places=7)
         self.assertEqual(result.compensation_deg[2], 0.0)
         self.assertEqual(result.compensation_deg[4], 0.0)
@@ -37,6 +41,17 @@ class StaticTendonTest(unittest.TestCase):
         straight = self.model.evaluate((35, -15, 0, 30, 0, 10))
         twisted = self.model.evaluate((35, -15, 50, 30, 20, 10))
         self.assertGreater(abs(straight.hold_torque_nm[1] - twisted.hold_torque_nm[1]), 0.1)
+
+    def test_asymmetric_ropes_produce_distinct_force_changes(self):
+        index = 3  # J4 has different left and right measured stiffnesses.
+        result = self.model.evaluate(HORIZONTAL)
+        extension_mm = result.rope_a_delta_mm[index]
+        left_n = result.rope_a_delta_n[index]
+        right_n = result.rope_b_delta_n[index]
+        self.assertAlmostEqual(extension_mm, 31.0 * radians(result.compensation_deg[index]))
+        self.assertAlmostEqual(left_n, 44.7 * extension_mm)
+        self.assertAlmostEqual(right_n, -46.8 * extension_mm)
+        self.assertAlmostEqual(result.hold_torque_nm[index], 0.031 * (left_n - right_n))
 
     def test_inverse_uses_all_encoder_coordinates(self):
         for target in (HORIZONTAL, OTHER_POSE, (0.0,) * 6):
@@ -49,13 +64,18 @@ class StaticTendonTest(unittest.TestCase):
 
     def test_soft_ropes_need_iterative_feedback(self):
         profile = json.loads(self.model.profile.read_text(encoding="utf-8"))
-        profile["rope_stiffness_n_per_mm"] = [1.0] * 6
+        del profile[LEFT_STIFFNESS]
+        del profile[RIGHT_STIFFNESS]
+        profile[LEGACY_STIFFNESS] = [1.0] * 6
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "soft.json"
             path.write_text(json.dumps(profile), encoding="utf-8")
             model = TendonModel(path)
             target = (27.103289856, *HORIZONTAL[1:])
-            encoder = model.evaluate(target).effective_deg
+            result = model.evaluate(target)
+            self.assertAlmostEqual(result.rope_a_delta_n[0], result.rope_a_delta_mm[0])
+            self.assertAlmostEqual(result.rope_b_delta_n[0], -result.rope_a_delta_n[0])
+            encoder = result.effective_deg
             one_step = encoder[0] - model.evaluate(encoder).compensation_deg[0]
             self.assertGreater(abs(one_step - target[0]), 60)
             for value, expected in zip(model.estimate(encoder), target):
@@ -64,7 +84,8 @@ class StaticTendonTest(unittest.TestCase):
     def test_profile_overrides_mass_stiffness_radius(self):
         profile = json.loads(self.model.profile.read_text(encoding="utf-8"))
         profile["mass_kg"] = [2 * mass for mass in profile["mass_kg"]]
-        profile["rope_stiffness_n_per_mm"][0] *= 4
+        profile[LEFT_STIFFNESS][0] *= 4
+        profile[RIGHT_STIFFNESS][0] *= 4
         profile["radius_mm"][0] *= 2
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "profile.json"
@@ -74,9 +95,21 @@ class StaticTendonTest(unittest.TestCase):
             self.assertAlmostEqual(result.hold_torque_nm[0], 2 * default.hold_torque_nm[0])
             self.assertAlmostEqual(result.compensation_deg[0], default.compensation_deg[0] / 8)
             self.assertAlmostEqual(result.rope_a_delta_mm[0], default.rope_a_delta_mm[0] / 4)
-            profile["rope_stiffness_n_per_mm"][0] = 0
+            profile[LEFT_STIFFNESS][0] = 0
             path.write_text(json.dumps(profile), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "positive"):
+                TendonModel(path)
+
+    def test_incomplete_and_mixed_rope_profiles_are_rejected(self):
+        profile = json.loads(self.model.profile.read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "profile.json"
+            path.write_text(json.dumps({**profile, LEGACY_STIFFNESS: [1.0] * 6}), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "混用"):
+                TendonModel(path)
+            del profile[RIGHT_STIFFNESS]
+            path.write_text(json.dumps(profile), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "同时配置"):
                 TendonModel(path)
 
     def test_sdk_compensates_command_and_inverts_live_motor_samples(self):
@@ -155,6 +188,7 @@ class StaticTendonTest(unittest.TestCase):
         self.assertAlmostEqual(move.tendon.compensation_deg[1], -native.compensation_deg[1])
         self.assertAlmostEqual(move.tendon.hold_torque_nm[1], -native.hold_torque_nm[1])
         self.assertAlmostEqual(move.tendon.rope_a_delta_mm[1], native.rope_a_delta_mm[1])
+        self.assertAlmostEqual(move.tendon.rope_b_delta_n[1], native.rope_b_delta_n[1])
         self.assertAlmostEqual(move.predicted_joint_deg[1], target_ui[1], places=3)
 
 
