@@ -1,0 +1,27 @@
+<launch>
+    <arg name="tendon_compensation" default="false"/>
+    <arg name="tendon_profile"
+         default="$(find-pkg-share arm_hardware)/config/static_tendon_compensation.json"/>
+    <arg name="joint_speed_limits_dps" default="10,10,10,10,10,10"/>
+    <arg name="joint_speed_scale" default="0.8"/>
+    <arg name="joint_speed_offset_dps" default="2.0"/>
+    <let name="urdf_path" 
+        value="$(find-pkg-share arm_moveit_config)/config/arm_R.urdf.xacro"/>
+   <let name="rviz_path" 
+        value="$(find-pkg-share arm_bringup)/rviz/arm_moveit.rviz"/>
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+        <param name="robot_description"
+               value="$(command 'xacro &quot;$(var urdf_path)&quot; tendon_compensation:=$(var tendon_compensation) &quot;tendon_profile:=$(var tendon_profile)&quot; &quot;joint_speed_limits_dps:=$(var joint_speed_limits_dps)&quot; joint_speed_scale:=$(var joint_speed_scale) joint_speed_offset_dps:=$(var joint_speed_offset_dps)')"/>
+    </node>
+
+    <node pkg="controller_manager" exec="ros2_control_node">
+        <param from ="$(find-pkg-share arm_moveit_config)/config/ros2_controllers.yaml"/>
+        <remap from="~/robot_description" to="/robot_description"/>
+    </node>
+    <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster" output="screen"/>
+    <node pkg="controller_manager" exec="spawner" args="arm_R_controller" output="screen"/>
+    <!-- <node pkg="controller_manager" exec="spawner" args="gripper_controller"/>   -->
+    <include file="$(find-pkg-share arm_moveit_config)/launch/move_group.launch.py"/>
+    <node pkg="rviz2" exec="rviz2" output="screen"
+        args="-d $(var rviz_path)"/>
+</launch> 

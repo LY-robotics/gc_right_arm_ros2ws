@@ -1,0 +1,10 @@
+<library path="arm_hardware">
+  <class
+    name="arm_hardware/ArmHardwareInterface"
+    type="arm_hardware::ArmHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Muweidu TS motor hardware interface using Linux SocketCAN classic standard-frame passthrough.
+    </description>
+  </class>
+</library>

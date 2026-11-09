@@ -1,0 +1,280 @@
+<?xml version="1.0"?>
+<robot  name ="1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <link name="world"/>
+  <link name="jian"/>
+  <link name="base">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/base.STL" />
+      </geometry>
+      <material name="gray_metal0">
+        <color rgba="0.615686274509804 0.643137254901961 0.674509803921569 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.000047829933 -0.028261963278 -0.009999998845" rpy="0 0 0" />
+      <geometry>
+        <box size="0.058904342 0.115476081 0.078000001" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.000133234250593912 -0.0502886870475106 -0.0155365804299716" rpy="0 0 0" />
+      <mass value="0.46408773981784" />
+      <inertia ixx="0.000242751952980255" ixy="-0.00000142060879184469" ixz="0.00000112539545114494" iyy="0.000222785257612238" iyz="0.00000183005835190381" izz="0.000267372422167116" />
+    </inertial>
+  </link>
+
+  <link name="Arm1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/Arm1.STL" />
+      </geometry>
+      <material name="gray_metal1">
+        <color rgba="0.866666666666667 0.866666666666667 0.890196078431372 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.000216692686 0 -0.022813303396" rpy="0 0 0" />
+      <geometry>
+        <box size="0.083066614 0.111297736 0.119373401" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.000150992141374828 -1.18281100739777e-7 -0.0412528574225757" rpy="0 0 0" />
+      <mass value="0.21911116251589" />
+      <inertia ixx="0.000181217973254358" ixy="7.47846095040869e-7" ixz="-3.24314358544307e-7" iyy="0.000169909369100917" iyz="4.35206672139014e-8" izz="0.000227358292966564" />
+    </inertial>
+  </link>
+
+  <link name="Arm2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/Arm2.STL" />
+      </geometry>
+      <material name="gray_metal2">
+        <color rgba="1 0.705882352941176 0.341176470588235 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.00825959444 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.079480813 0.063000003 0.099000001" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.0146622343202617 1.94866163386043e-7 3.45567412359267e-8" rpy="0 0 0" />
+      <mass value="0.154988178865956" />
+      <inertia ixx="0.000211780543661148" ixy="-3.85744368736297e-10" ixz="1.55478402750291e-10" iyy="0.000222001553475746" iyz="1.79181301949444e-9" izz="0.000145066868672833" />
+    </inertial>
+  </link>
+
+  <link name="Arm3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/Arm3.STL" />
+      </geometry>
+      <material name="gray_metal3">
+        <color rgba="0.866666666666667 0.866666666666667 0.890196078431372 1"/>
+      </material>
+    </visual>
+    <collision name="Arm3_lower">
+      <origin xyz="0 0 0.050161435734" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.043200005" length="0.01432287" />
+      </geometry>
+    </collision>
+    <collision name="Arm3_middle">
+      <origin xyz="0 0 0.127743640371" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.038393758" length="0.140841542" />
+      </geometry>
+    </collision>
+    <collision name="Arm3_upper">
+      <origin xyz="0 0.015 0.23581089158" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.027177428" length="0.081292963" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.0000330549820099224 0.00474590330950531 0.151500878129098" rpy="0 0 0" />
+      <mass value="0.327772135843657" />
+      <inertia ixx="0.00191130244856678" ixy="0.00000245279386006661" ixz="0.00000112730586793336" iyy="0.00186092369180326" iyz="-0.00013950718787775" izz="0.000292578223388564" />
+    </inertial>
+  </link>
+
+  <link name="Arm4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/Arm4.STL" />
+      </geometry>
+      <material name="gray_metal4">
+        <color rgba="0.866666666666667 0.866666666666667 0.890196078431372 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.000490685925 -0.000001041219 -0.002000000328" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.033125658" length="0.060000004" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.00282463681741374 -0.000124777450242626 -0.00173470608166383" rpy="0 0 0" />
+      <mass value="0.0890927669306798" />
+      <inertia ixx="0.000022835092496068" ixy="3.48341535632016e-7" ixz="-1.13185756181516e-7" iyy="0.0000258271542194299" iyz="2.83053639874475e-9" izz="0.0000349152254098732" />
+    </inertial>
+  </link>
+
+  <link name="Arm5">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/Arm5.STL" />
+      </geometry>
+      <material name="gray_metal5">
+        <color rgba="0.866666666666667 0.866666666666667 0.890196078431372 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.000035859644 0 0.140049996786" rpy="0 0 0" />
+      <geometry>
+        <box size="0.051928201 0.061044691 0.204899994" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.000738721785152233 -0.00000736304565833072 0.12292136526893" rpy="0 0 0" />
+      <mass value="0.174429481898043" />
+      <inertia ixx="0.000656584618563486" ixy="-6.09109086272826e-8" ixz="-0.00000587072848763257" iyy="0.000640323705392772" iyz="3.65247168098218e-9" izz="0.0000879308371134819" />
+    </inertial>
+  </link>
+
+  <link name="Arm6">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://arm_description/meshes/Arm6.STL" />
+      </geometry>
+      <material name="gray_metal6">
+        <color rgba="0.866666666666667 0.866666666666667 0.890196078431372 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.009827564005 -0.000983487349 -0.000749534927" rpy="0 0 0" />
+      <geometry>
+        <box size="0.041521635 0.022984678 0.040059451" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.00850167303930216 -0.000430378756167412 -0.000509704556956772" rpy="0 0 0" />
+      <mass value="0.0285966252790591" />
+      <inertia ixx="0.00000388114642484229" ixy="1.16534425010448e-7" ixz="-2.15902969594172e-7" iyy="0.00000617876117230397" iyz="1.08930868228997e-8" izz="0.0000044196280896597" />
+    </inertial>
+  </link>
+
+  <joint name="Joint0" type="fixed">
+    <parent link="world" />
+    <child link="jian" />
+    <origin xyz="0 0 0.8" rpy="0 0 0" />
+    <axis xyz="0 0 0" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+  <joint name="Joint0_1" type="fixed">
+    <parent link="jian" />
+    <child link="base" />
+    <origin xyz="0 0.039 -0.0676" rpy="-1.5708 0 0" />
+    <axis xyz="0 0 0" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+  <joint name="Joint1" type="revolute">
+    <parent link="base" />
+    <child link="Arm1" />
+    <origin xyz="0 0 0.0939" rpy="0 0 1.5708" />
+    <axis xyz="0 0 1" />
+    <!-- Position limits are radians. Effort is required by URDF; this position-only hardware does not use it. -->
+    <limit lower="-2.584483556353" upper="2.542246588455" effort="1.0" velocity="0.174533" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+
+  <joint name="Joint2" type="revolute">
+    <parent link="Arm1" />
+    <child link="Arm2" />
+    <origin xyz="0 0 0" rpy="-1.5708 0.035257 0.050557" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.310117797940" upper="0.105417886820" effort="1.0" velocity="0.174533" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+
+  <joint name="Joint3" type="revolute">
+    <parent link="Arm2" />
+    <child link="Arm3" />
+    <origin xyz="0 0 0" rpy="-1.5708 0.0017837 -1.5708" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-1.679181273344" upper="1.257160660212" effort="1.0" velocity="0.174533" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+
+  <joint name="Joint4" type="revolute">
+    <parent link="Arm3" />
+    <child link="Arm4" />
+    <origin xyz="0 0 0.312" rpy="-1.5708 -1.5203 1.569" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-0.872490093072" upper="2.334028808692" effort="1.0" velocity="0.174533" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+
+  <joint name="Joint5" type="revolute">
+    <parent link="Arm4" />
+    <child link="Arm5" />
+    <origin xyz="0 0 0" rpy="1.5708 1.569 1.5203" />
+    <axis xyz="0 0 1" />
+    <limit lower="-2.904576941169" upper="2.657787384937" effort="1.0" velocity="0.174533" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+
+  <joint name="Joint6" type="revolute">
+    <parent link="Arm5" />
+    <child link="Arm6" />
+    <origin xyz="0 0 0.24" rpy="-0.96144 -1.5092 0.96055" />
+    <axis xyz="0.035205 -0.0017814 -1" />
+    <limit lower="-1.635024443268" upper="1.705884810899" effort="1.0" velocity="0.174533" />
+    <hardware>
+      <motorType>None</motorType>
+      <motorDirection>1</motorDirection>
+      <armature>0</armature>
+    </hardware>
+  </joint>
+
+</robot>

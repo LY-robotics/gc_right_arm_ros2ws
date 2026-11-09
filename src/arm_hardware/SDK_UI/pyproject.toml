@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "muweidu-arm-sdk-ui"
+version = "0.1.0"
+description = "Standalone real-hardware SocketCAN SDK and debug UI for a coupled six-axis arm"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.22"]
+
+[project.scripts]
+muweidu-arm-sdk-ui = "sdk_ui.app:main"
+
+[tool.setuptools]
+packages = ["sdk_ui", "sdk_ui.kinematics"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+sdk_ui = ["default_hardware.json"]

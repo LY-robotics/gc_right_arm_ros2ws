@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="arm_R_ros2_control" params="name can_interface
+      motor1_id motor2_id motor3_id motor4_id motor5_id motor6_id
+      joint_speed_limits_dps joint_speed_scale joint_speed_offset_dps
+      initialize_motors_to_zero tendon_compensation:=false tendon_profile:=''">
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <plugin>arm_hardware/ArmHardwareInterface</plugin>
+        <param name="mapping_mode">coupled</param>
+        <param name="can_interface">${can_interface}</param>
+        <param name="can_timeout_ms">200</param>
+        <param name="enable_motors_on_activate">false</param>
+        <param name="enable_motors_on_command">true</param>
+        <param name="initialize_motors_to_zero">${initialize_motors_to_zero}</param>
+        <param name="emergency_stop_on_deactivate">true</param>
+        <!-- Joint-space speed caps in Joint1 through Joint6 order, in degrees/s. -->
+        <param name="joint_speed_limits_dps">${joint_speed_limits_dps}</param>
+        <param name="joint_speed_scale">${joint_speed_scale}</param>
+        <param name="joint_speed_offset_dps">${joint_speed_offset_dps}</param>
+        <param name="static_tendon_compensation">${tendon_compensation}</param>
+        <xacro:if value="${tendon_compensation}">
+          <xacro:property name="default_tendon_profile"
+                          value="$(find arm_hardware)/config/static_tendon_compensation.json"/>
+          <xacro:property name="tendon_data"
+                          value="${xacro.load_yaml(tendon_profile or default_tendon_profile)}"/>
+          <param name="tendon_mass_kg">${tendon_data['mass_kg']}</param>
+          <param name="tendon_com_1_m">${tendon_data['com_m'][0]}</param>
+          <param name="tendon_com_2_m">${tendon_data['com_m'][1]}</param>
+          <param name="tendon_com_3_m">${tendon_data['com_m'][2]}</param>
+          <param name="tendon_com_4_m">${tendon_data['com_m'][3]}</param>
+          <param name="tendon_com_5_m">${tendon_data['com_m'][4]}</param>
+          <param name="tendon_com_6_m">${tendon_data['com_m'][5]}</param>
+          <param name="tendon_rope_stiffness_n_per_mm">${tendon_data['rope_stiffness_n_per_mm']}</param>
+          <param name="tendon_radius_mm">${tendon_data['radius_mm']}</param>
+          <param name="tendon_gravity_m_s2">${tendon_data['gravity_m_s2']}</param>
+          <param name="tendon_payload_mass_kg">${tendon_data['payload_mass_kg']}</param>
+          <param name="tendon_payload_com_m">${tendon_data['payload_com_m']}</param>
+        </xacro:if>
+
+        <!-- Replace these defaults with the six actual CAN motor IDs if needed. -->
+        <param name="motor1_id">${motor1_id}</param>
+        <param name="motor2_id">${motor2_id}</param>
+        <param name="motor3_id">${motor3_id}</param>
+        <param name="motor4_id">${motor4_id}</param>
+        <param name="motor5_id">${motor5_id}</param>
+        <param name="motor6_id">${motor6_id}</param>
+
+        <!-- Encoder-zero offsets are motor-side radians; direction is a sign correction. -->
+        <param name="motor1_direction">1</param>
+        <param name="motor2_direction">-1</param>
+        <param name="motor3_direction">-1</param>
+        <param name="motor4_direction">1</param>
+        <param name="motor5_direction">1</param>
+        <param name="motor6_direction">1</param>
+        <param name="motor1_zero_offset_rad">0.0</param>
+        <param name="motor2_zero_offset_rad">0.0</param>
+        <param name="motor3_zero_offset_rad">0.0</param>
+        <param name="motor4_zero_offset_rad">0.0</param>
+        <param name="motor5_zero_offset_rad">0.0</param>
+        <param name="motor6_zero_offset_rad">0.0</param>
+      </hardware>
+
+      <!-- These are the six logical URDF joints consumed by MoveIt. -->
+      <joint name="Joint1">
+        <command_interface name="position" />
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+        <state_interface name="effort" />
+      </joint>
+      <joint name="Joint2">
+        <command_interface name="position" />
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+        <state_interface name="effort" />
+      </joint>
+      <joint name="Joint3">
+        <command_interface name="position" />
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+        <state_interface name="effort" />
+      </joint>
+      <joint name="Joint4">
+        <command_interface name="position" />
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+        <state_interface name="effort" />
+      </joint>
+      <joint name="Joint5">
+        <command_interface name="position" />
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+        <state_interface name="effort" />
+      </joint>
+      <joint name="Joint6">
+        <command_interface name="position" />
+        <command_interface name="velocity" />
+        <state_interface name="position" />
+        <state_interface name="velocity" />
+        <state_interface name="effort" />
+      </joint>
+    </ros2_control>
+  </xacro:macro>
+</robot>

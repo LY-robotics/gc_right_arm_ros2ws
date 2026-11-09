@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="motor_slider_ros2_control" params="can_interface motor_id max_speed_dps">
+    <ros2_control name="MuweiduMotor" type="system">
+      <hardware>
+        <plugin>arm_hardware/ArmHardwareInterface</plugin>
+        <param name="can_timeout_ms">50</param>
+        <param name="enable_motors_on_activate">false</param>
+        <param name="enable_motors_on_command">true</param>
+        <param name="emergency_stop_on_deactivate">true</param>
+      </hardware>
+
+      <joint name="motor_joint">
+        <param name="can_interface">${can_interface}</param>
+        <param name="motor_id">${motor_id}</param>
+        <param name="angle_raw_per_revolution">36000</param>
+        <param name="angle_zero_raw">0</param>
+        <param name="max_speed_dps">${max_speed_dps}</param>
+        <param name="direction">1</param>
+        <param name="zero_position_rad">0.0</param>
+        <command_interface name="position" />
+        <state_interface name="position" />
+      </joint>
+    </ros2_control>
+  </xacro:macro>
+</robot>

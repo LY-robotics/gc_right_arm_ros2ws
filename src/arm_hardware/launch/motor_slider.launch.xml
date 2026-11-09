@@ -1,0 +1,26 @@
+<launch>
+  <let name="slider_urdf" value="$(find-pkg-share arm_hardware)/motor_slider.urdf.xacro" />
+  <let name="robot_description" value="$(command 'xacro $(var slider_urdf)')" />
+  <let name="controllers_yaml" value="$(find-pkg-share arm_hardware)/config/arm_hardware_controllers.yaml" />
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description" value="$(var robot_description)" />
+  </node>
+
+  <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" output="screen">
+    <remap from="/joint_states" to="/slider/joint_states" />
+  </node>
+
+  <node pkg="controller_manager" exec="ros2_control_node" output="screen">
+    <param name="robot_description" value="$(var robot_description)" />
+    <param from="$(var controllers_yaml)" />
+  </node>
+
+  <node pkg="arm_hardware" exec="motor_slider_command_bridge"
+        name="motor_slider_command_bridge" output="screen">
+    <param from="$(var controllers_yaml)" />
+  </node>
+
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster" output="screen" />
+  <node pkg="controller_manager" exec="spawner" args="motor_position_controller" output="screen" />
+</launch>

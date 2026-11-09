@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="motor_slider">
+  <xacro:arg name="can_interface" default="can2" />
+  <xacro:arg name="motor_id" default="2" />
+  <xacro:arg name="max_speed_dps" default="10" />
+  <xacro:include filename="$(find arm_hardware)/motor_slider.ros2_control.xacro" />
+
+  <link name="slider_base" />
+  <link name="slider_motor" />
+  <joint name="motor_joint" type="revolute">
+    <parent link="slider_base" />
+    <child link="slider_motor" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit lower="-1.57079632679" upper="1.57079632679" effort="1" velocity="1" />
+  </joint>
+
+  <xacro:motor_slider_ros2_control
+    can_interface="$(arg can_interface)"
+    motor_id="$(arg motor_id)"
+    max_speed_dps="$(arg max_speed_dps)" />
+</robot>

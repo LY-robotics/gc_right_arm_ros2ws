@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="arm_R">
+    <xacro:arg name="can_interface" default="can2" />
+    <!-- Defaults are unique and start at the previously used ID 2; adjust to the actual bus IDs. -->
+    <xacro:arg name="motor1_id" default="1" />
+    <xacro:arg name="motor2_id" default="2" />
+    <xacro:arg name="motor3_id" default="3" />
+    <xacro:arg name="motor4_id" default="4" />
+    <xacro:arg name="motor5_id" default="5" />
+    <xacro:arg name="motor6_id" default="6" />
+    <xacro:arg name="joint_speed_limits_dps" default="30,30,30,30,30,30" />
+    <xacro:arg name="joint_speed_scale" default="0.6" />
+    <xacro:arg name="joint_speed_offset_dps" default="10.0" />
+    <xacro:arg name="initialize_motors_to_zero" default="false" />
+    <xacro:arg name="tendon_compensation" default="false" />
+    <xacro:arg name="tendon_profile" default="" />
+
+    <!-- Import arm_R urdf file -->
+    <xacro:include filename="$(find arm_description)/urdf/Arm_R.urdf.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="arm_R.ros2_control.xacro" />
+
+
+    <xacro:arm_R_ros2_control name="ArmSystem"
+    can_interface="$(arg can_interface)"
+    motor1_id="$(arg motor1_id)"
+    motor2_id="$(arg motor2_id)"
+    motor3_id="$(arg motor3_id)"
+    motor4_id="$(arg motor4_id)"
+    motor5_id="$(arg motor5_id)"
+    motor6_id="$(arg motor6_id)"
+    joint_speed_limits_dps="$(arg joint_speed_limits_dps)"
+    joint_speed_scale="$(arg joint_speed_scale)"
+    joint_speed_offset_dps="$(arg joint_speed_offset_dps)"
+    initialize_motors_to_zero="$(arg initialize_motors_to_zero)"
+    tendon_compensation="$(arg tendon_compensation)"
+    tendon_profile="$(arg tendon_profile)"/>
+
+</robot>

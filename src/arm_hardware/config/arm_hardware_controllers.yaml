@@ -1,0 +1,21 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 20
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    motor_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+motor_position_controller:
+  ros__parameters:
+    joints: ["motor_joint"]
+    interface_name: "position"
+
+motor_slider_command_bridge:
+  ros__parameters:
+    joint_name: motor_joint
+    input_topic: /slider/joint_states
+    command_topic: /motor_position_controller/commands
+    change_threshold_rad: 0.001

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <PortType>4</PortType>
+  <COMPort>-1</COMPort>
+  <BoudRate>100K</BoudRate>
+  <CRC>false</CRC>
+  <AppAddress>08010000</AppAddress>
+  <I2CAddress>A0</I2CAddress>
+  <AppDownloadFile>
+  </AppDownloadFile>
+  <VID>2E3C</VID>
+  <PID>AF01</PID>
+</Configuration>
