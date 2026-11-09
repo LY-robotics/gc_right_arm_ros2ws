@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arm_tendon_test</name>
+  <version>0.1.0</version>
+  <description>Offline Tk test UI for the shared six-axis static tendon compensation.</description>
+  <maintainer email="shaune@todo.todo">shaune</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>arm_hardware</exec_depend>
+  <exec_depend>arm_description</exec_depend>
+  <exec_depend>arm_moveit_config</exec_depend>
+  <exec_depend>python3-tk</exec_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

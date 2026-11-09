@@ -69,7 +69,21 @@ TendonConfig readTendonConfig(const hardware_interface::HardwareInfo & info)
 {
   TendonConfig config;
   readTendonVector(info, "mass_kg", config.mass_kg);
-  readTendonVector(info, "rope_stiffness_n_per_mm", config.rope_stiffness_n_per_mm);
+  const auto & params = info.hardware_parameters;
+  const bool has_left = params.count("tendon_rope_stiffness_left_n_per_mm") != 0;
+  const bool has_right = params.count("tendon_rope_stiffness_right_n_per_mm") != 0;
+  const bool has_legacy = params.count("tendon_rope_stiffness_n_per_mm") != 0;
+  if (has_left && has_right && !has_legacy) {
+    readTendonVector(info, "rope_stiffness_left_n_per_mm", config.rope_stiffness_left_n_per_mm);
+    readTendonVector(info, "rope_stiffness_right_n_per_mm", config.rope_stiffness_right_n_per_mm);
+  } else if (has_legacy && !has_left && !has_right) {
+    readTendonVector(info, "rope_stiffness_n_per_mm", config.rope_stiffness_left_n_per_mm);
+    std::copy_n(config.rope_stiffness_left_n_per_mm, kExpectedJointNames.size(),
+      config.rope_stiffness_right_n_per_mm);
+  } else {
+    throw std::invalid_argument("tendon profile requires both left/right stiffness vectors "
+            "or one legacy equal-rope stiffness vector");
+  }
   readTendonVector(info, "radius_mm", config.radius_mm);
   readTendonVector(info, "gravity_m_s2", config.gravity_m_s2);
   readTendonVector(info, "payload_com_m", config.payload_com_m);
@@ -355,6 +369,8 @@ hardware_interface::CallbackReturn ArmHardwareInterface::on_init(
         joint_speed_limits_dps_.fill(limit);
       } else if (limits != params.end()) {
         joint_speed_limits_dps_ = readJointSpeedLimits(limits->second);
+      } else if (velocity_count == 0) {
+        joint_speed_limits_dps_.fill(10.0);
       }
       const auto scale = params.find("joint_speed_scale");
       const auto offset = params.find("joint_speed_offset_dps");

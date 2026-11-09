@@ -34,6 +34,14 @@ int main()
   for (std::size_t i = 0; i < expected.size(); ++i) {
     assert(std::abs(mapped[i] - expected[i]) < 1e-12);
   }
+  const Angles default_velocity_rad_s{0, -5 * kDeg, 10 * kDeg, -20 * kDeg, 30 * kDeg, 40 * kDeg};
+  const Angles default_limits_dps{30, 30, 30, 30, 30, 30};
+  const auto default_mapped =
+    mappedJointSpeedLimits(default_velocity_rad_s, default_limits_dps, 0.6, 10.0);
+  const Angles expected_default{10, 13, 16, 22, 28, 30};
+  for (std::size_t i = 0; i < expected_default.size(); ++i) {
+    assert(std::abs(default_mapped[i] - expected_default[i]) < 1e-12);
+  }
   expectException([&] {mappedJointSpeedLimits(velocity_rad_s, limits_dps, 0.0, 2.0);});
   expectException([&] {mappedJointSpeedLimits(velocity_rad_s, limits_dps, 1.1, 2.0);});
   expectException([&] {mappedJointSpeedLimits(velocity_rad_s, limits_dps, 0.5, 0.0);});

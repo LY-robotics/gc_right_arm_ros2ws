@@ -30,7 +30,8 @@ struct TendonConfig
   double upper_rad[6]{};
   double mass_kg[6]{};
   double com_m[6][3]{};
-  double rope_stiffness_n_per_mm[6]{};
+  double rope_stiffness_left_n_per_mm[6]{};
+  double rope_stiffness_right_n_per_mm[6]{};
   double radius_mm[6]{};
   double gravity_m_s2[3]{};
   double payload_mass_kg{};
@@ -42,9 +43,11 @@ struct TendonResult
   double hold_torque_nm[6]{};
   double compensation_rad[6]{};
   double effective_rad[6]{};
-  // Signed changes relative to pretension, for rope A. Rope B is the opposite.
+  // Signed changes relative to pretension. A is left, B is right.
+  // B's length change is -rope_a_delta_mm, but its stiffness can differ.
   double rope_a_delta_mm[6]{};
   double rope_a_delta_n[6]{};
+  double rope_b_delta_n[6]{};
 };
 
 inline constexpr std::array<std::size_t, 4> kTendonAxes{{0, 1, 3, 5}};

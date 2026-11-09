@@ -31,7 +31,15 @@
           <param name="tendon_com_4_m">${tendon_data['com_m'][3]}</param>
           <param name="tendon_com_5_m">${tendon_data['com_m'][4]}</param>
           <param name="tendon_com_6_m">${tendon_data['com_m'][5]}</param>
-          <param name="tendon_rope_stiffness_n_per_mm">${tendon_data['rope_stiffness_n_per_mm']}</param>
+          <xacro:if value="${'rope_stiffness_left_n_per_mm' in tendon_data}">
+            <param name="tendon_rope_stiffness_left_n_per_mm">${tendon_data['rope_stiffness_left_n_per_mm']}</param>
+          </xacro:if>
+          <xacro:if value="${'rope_stiffness_right_n_per_mm' in tendon_data}">
+            <param name="tendon_rope_stiffness_right_n_per_mm">${tendon_data['rope_stiffness_right_n_per_mm']}</param>
+          </xacro:if>
+          <xacro:if value="${'rope_stiffness_n_per_mm' in tendon_data}">
+            <param name="tendon_rope_stiffness_n_per_mm">${tendon_data['rope_stiffness_n_per_mm']}</param>
+          </xacro:if>
           <param name="tendon_radius_mm">${tendon_data['radius_mm']}</param>
           <param name="tendon_gravity_m_s2">${tendon_data['gravity_m_s2']}</param>
           <param name="tendon_payload_mass_kg">${tendon_data['payload_mass_kg']}</param>

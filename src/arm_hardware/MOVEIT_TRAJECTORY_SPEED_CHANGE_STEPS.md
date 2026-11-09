@@ -19,11 +19,11 @@ $$
 
 | 参数 | 含义 | 默认值 |
 | --- | --- | --- |
-| `joint_speed_limits_dps` | J1 到 J6 各自的关节侧硬上限，单位 °/s | `10,10,10,10,10,10` |
-| `joint_speed_scale` | 共享斜率 $k$，要求 $0<k\le1$ | `0.8` |
-| `joint_speed_offset_dps` | 共享偏置 $b$，单位 °/s，要求 $0<b\le\min_i v_{\max,i}$ | `2.0` |
+| `joint_speed_limits_dps` | J1 到 J6 各自的关节侧硬上限，单位 °/s | `30,30,30,30,30,30` |
+| `joint_speed_scale` | 共享斜率 $k$，要求 $0<k\le1$ | `0.6` |
+| `joint_speed_offset_dps` | 共享偏置 $b$，单位 °/s，要求 $0<b\le\min_i v_{\max,i}$ | `10.0` |
 
-六个上限分别配置。初始值沿用此前 10°/s 的硬件上限。$k<1$ 压缩速度差，$b$ 给零速度采样保留正的限速，供有剩余位置误差时继续逼近目标。默认下 $x=0,5,10$ °/s 分别映射为 $y=2,6,10$ °/s。负速度按同等幅值计算，运动方向由 A4 绝对位置目标决定。非有限命令、非有限系数、非法参数或缺失的部分速度接口会报告错误。
+六个上限分别配置。$k<1$ 压缩速度差，$b$ 给零速度采样保留正的限速，供有剩余位置误差时继续逼近目标。默认下 $x=0,20,30,40$ °/s 分别映射为 $y=10,22,28,30$ °/s。负速度按同等幅值计算，运动方向由 A4 绝对位置目标决定。非有限命令、非有限系数、非法参数或缺失的部分速度接口会报告错误。
 
 ## 六个关节限速到六个电机字段
 
@@ -61,12 +61,12 @@ $$
 colcon build --symlink-install --packages-up-to arm_bringup
 source install/setup.bash
 ros2 launch arm_bringup arm_moveit_start.launch.xml \
-  joint_speed_limits_dps:=8,6,5,7,9,4 \
-  joint_speed_scale:=0.8 \
-  joint_speed_offset_dps:=2.0
+  joint_speed_limits_dps:=24,18,15,30,20,12 \
+  joint_speed_scale:=0.6 \
+  joint_speed_offset_dps:=10.0
 ```
 
-MoveIt 的规划速度取自 [joint_limits.yaml](../arm_moveit_config/config/joint_limits.yaml)。当前该文件各轴 `max_velocity` 为 0.524533 rad/s，约 30.05°/s，和本次硬件侧默认上限 10°/s 分别生效。当轨迹速度大于硬件映射后的限速时，实际跟随时间可能超过规划时间。调试时可查看 `/arm_R_controller/controller_state` 的期望和实测速度，对照运行时的跟随误差。
+MoveIt 的规划速度取自 [joint_limits.yaml](../arm_moveit_config/config/joint_limits.yaml)。当前该文件各轴 `max_velocity` 为 0.524533 rad/s，约 30.05°/s，和硬件侧默认上限 30°/s 分别生效。当轨迹速度大于硬件映射后的限速时，实际跟随时间可能超过规划时间。调试时可查看 `/arm_R_controller/controller_state` 的期望和实测速度，对照运行时的跟随误差。
 
 启动后可用 `ros2 control list_hardware_interfaces` 核对 `Joint1/velocity` 至 `Joint6/velocity` 是否均由控制器认领。
 

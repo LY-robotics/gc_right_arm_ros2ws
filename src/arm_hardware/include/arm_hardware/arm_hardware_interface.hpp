@@ -90,9 +90,9 @@ private:
   std::optional<TendonAngles> previous_tendon_estimate_;
   std::string mapping_mode_{"direct"};
   std::string coupled_can_interface_;
-  std::array<double, 6> joint_speed_limits_dps_{10.0, 10.0, 10.0, 10.0, 10.0, 10.0};
-  double joint_speed_scale_{0.8};
-  double joint_speed_offset_dps_{2.0};
+  std::array<double, 6> joint_speed_limits_dps_{30.0, 30.0, 30.0, 30.0, 30.0, 30.0};
+  double joint_speed_scale_{0.6};
+  double joint_speed_offset_dps_{10.0};
   std::optional<std::array<double, 6>> last_coupled_speed_limits_dps_;
   std::array<std::uint16_t, 6> last_coupled_motor_speeds_{};
   std::chrono::milliseconds can_timeout_{20};

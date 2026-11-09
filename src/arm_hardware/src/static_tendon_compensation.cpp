@@ -160,12 +160,20 @@ StaticTendonModel::StaticTendonModel(const TendonConfig & config)
       throw std::invalid_argument("link masses must be finite and nonnegative");
     }
     const double radius_m = config_.radius_mm[i] / 1000.0;
-    const double rope_stiffness_n_per_m = config_.rope_stiffness_n_per_mm[i] * 1000.0;
-    stiffness_nm_per_rad_[i] = 2.0 * rope_stiffness_n_per_m * radius_m * radius_m;
-    if (radius_m <= 0.0 || !std::isfinite(stiffness_nm_per_rad_[i]) ||
-      stiffness_nm_per_rad_[i] <= 0.0)
+    const double left_stiffness = config_.rope_stiffness_left_n_per_mm[i];
+    const double right_stiffness = config_.rope_stiffness_right_n_per_mm[i];
+    if (!std::isfinite(radius_m) || radius_m <= 0.0 ||
+      !std::isfinite(left_stiffness) || left_stiffness <= 0.0 ||
+      !std::isfinite(right_stiffness) || right_stiffness <= 0.0)
     {
       throw std::invalid_argument("rope stiffness and radius must be finite and positive");
+    }
+    // Equal pulley radii give opposite length changes. Both taut ropes
+    // contribute to the restoring torque, even when their stiffness differs.
+    const double pair_stiffness_n_per_m = (left_stiffness + right_stiffness) * 1000.0;
+    stiffness_nm_per_rad_[i] = pair_stiffness_n_per_m * radius_m * radius_m;
+    if (!std::isfinite(stiffness_nm_per_rad_[i]) || stiffness_nm_per_rad_[i] <= 0.0) {
+      throw std::invalid_argument("effective joint stiffness exceeded numerical range");
     }
   }
 }
@@ -202,12 +210,14 @@ TendonResult StaticTendonModel::evaluate(const TendonAngles & nominal) const
     result.compensation_rad[i] = result.hold_torque_nm[i] / stiffness_nm_per_rad_[i];
     result.effective_rad[i] += result.compensation_rad[i];
     result.rope_a_delta_mm[i] = config_.radius_mm[i] * result.compensation_rad[i];
-    result.rope_a_delta_n[i] = config_.rope_stiffness_n_per_mm[i] * result.rope_a_delta_mm[i];
+    result.rope_a_delta_n[i] = config_.rope_stiffness_left_n_per_mm[i] * result.rope_a_delta_mm[i];
+    result.rope_b_delta_n[i] = -config_.rope_stiffness_right_n_per_mm[i] * result.rope_a_delta_mm[i];
   }
   requireFinite(result.hold_torque_nm, "gravity torque exceeded numerical range");
   requireFinite(result.effective_rad, "compensated angle exceeded numerical range");
   requireFinite(result.rope_a_delta_mm, "rope elongation exceeded numerical range");
   requireFinite(result.rope_a_delta_n, "rope tension exceeded numerical range");
+  requireFinite(result.rope_b_delta_n, "rope tension exceeded numerical range");
   return result;
 }
 
@@ -320,7 +330,7 @@ void setError(char * error, std::size_t capacity, const std::exception & excepti
 
 unsigned arm_tendon_abi_version()
 {
-  return 1;
+  return 2;
 }
 
 void * arm_tendon_create(
